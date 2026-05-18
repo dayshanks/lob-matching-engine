@@ -7,12 +7,12 @@ access and O(1) cancel-by-id.
 ## Highlights
 
 - **Intrusive doubly-linked lists per price level**, indexed by a sorted
-  `std::map`. Bids descending, asks ascending — `begin()` is always the
+  `std::map`. Bids descending, asks ascending; `begin()` is always the
   touch price.
-- **Arena-allocated order pool** — no `malloc` / `free` on the hot path and
-  no atomic reference-count overhead from `shared_ptr`.
-- **CRTP publisher template** with a zero-cost `NullPublisher` default —
-  market-data callbacks resolve at compile time and compile away entirely
+- **Arena-allocated order pool** with no `malloc` or `free` on the hot path
+  and no atomic reference-count overhead from `shared_ptr`.
+- **CRTP publisher template** with a zero-cost `NullPublisher` default.
+  Market-data callbacks resolve at compile time and compile away entirely
   for benchmarks.
 - **32 unit tests** covering crossed-book, partial-fill, self-trade,
   iterator-invalidation, and randomized invariant scenarios.
@@ -37,7 +37,7 @@ Median of 5 runs per configuration, 2M operations each, on Apple Silicon.
 | p99 latency    |       209 ns   |         291 ns  |     **−28%** |
 | p99.9 latency  |       375 ns   |         417 ns  |        −10%  |
 
-L1-dcache-miss measurements via `perf stat` are pending — `perf` is Linux-only
+L1-dcache-miss measurements via `perf stat` are pending; `perf` is Linux-only
 and the current measurement environment is Apple Silicon. Throughput and
 latency improvements above are what the cache-locality win produces in
 user-visible terms.
@@ -73,8 +73,8 @@ sudo perf stat -e L1-dcache-loads,L1-dcache-load-misses ./build/bench_nopool 200
 
 Per-level FIFO is an intrusive doubly-linked list owned by a `Limit` class
 that caches aggregate volume and order count. Limits are stored by value
-inside a `std::map<Price, Limit>` keyed by price — bids descending, asks
-ascending — so `begin()` is always the touch price. A
+inside a `std::map<Price, Limit>` keyed by price (bids descending, asks
+ascending) so `begin()` is always the touch price. A
 `std::unordered_map<OrderId, Order*>` gives O(1) cancel by id.
 
 The full design discussion, including the design choices adopted from
@@ -85,9 +85,9 @@ The full design discussion, including the design choices adopted from
 ## Project layout
 
 ```
-include/lob/      public headers — header-only library
+include/lob/      public headers (header-only library)
 tests/            unit test driver
-bench/            throughput + latency benchmark
+bench/            throughput and latency benchmark
 scripts/          measurement and plotting helpers
 docs/figures/     generated graphs
 results/          benchmark output (json)
