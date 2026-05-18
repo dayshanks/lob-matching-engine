@@ -25,10 +25,12 @@ static std::vector<TestCase>& registry() { static std::vector<TestCase> v; retur
 
 using namespace lob;
 
-static auto lim(OrderBook<>& b, OrderId id, Side s, Price p, Quantity q, ClientId c = 0, Timestamp ts = 0) {
+template <class B>
+static auto lim(B& b, OrderId id, Side s, Price p, Quantity q, ClientId c = 0, Timestamp ts = 0) {
     return b.submit_limit(id, c, s, p, q, ts);
 }
-static auto mkt(OrderBook<>& b, OrderId id, Side s, Quantity q, ClientId c = 0, Timestamp ts = 0) {
+template <class B>
+static auto mkt(B& b, OrderId id, Side s, Quantity q, ClientId c = 0, Timestamp ts = 0) {
     return b.submit_market(id, c, s, q, ts);
 }
 
