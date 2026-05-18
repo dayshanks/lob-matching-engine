@@ -161,3 +161,22 @@ Pick cores on the same NUMA node and avoid SMT siblings of any other busy thread
 - **Fixed-size MarketEvent in the ring** — no allocation in the hot path. Padded to 64 bytes so adjacent ring slots never share a cache line.
 - **`std::stop_source` for shutdown** — release/acquire semantics built into the language; `stop_callback` integrates with the producer's `epoll` via `eventfd`. No hand-rolled atomic flag for cooperative cancellation.
 - **`BookLike` concept** — compile-time duck typing. No vtable in the dispatch hot path; any class with the right four methods plugs in.
+
+## Benchmark results
+
+Run on a Hetzner CCX23 (4 dedicated x86_64 cores, AMD EPYC-Milan, Linux 6.8.0-111).
+
+| Metric | Value |
+|---|---|
+| Events processed | 99,775,055 |
+| Duration | 689.52 s |
+| Pipeline p50 | **110 ns** |
+| Pipeline p99 | **180 ns** |
+| Pipeline p99.9 | 6,309 ns |
+| ThreadSanitizer (2M events) | ✓ zero races detected |
+
+Throughput is feed-source-bound (TCP_NODELAY + syscall-per-message in `feed_replay`) at 0.14 M msg/s. The handler itself has multi-million-msg/s headroom — see flame graph below.
+
+![Flame graph — 20s perf capture under sustained load](bench_output/flame.svg)
+
+Full output: [`bench_output/bench_results.txt`](bench_output/bench_results.txt).

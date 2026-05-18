@@ -1,0 +1,8 @@
+events:        99775055
+duration:      689.52s
+throughput:    0.14 M msg/s
+pipeline p50:  110 ns
+pipeline p99:  180 ns
+pipeline p999: 6309 ns
+pipeline max:  292644815 ns
+book counts:   A=49885479 M=9979411 X=34917065 T=4992977
