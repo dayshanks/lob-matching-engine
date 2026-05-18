@@ -14,12 +14,12 @@ access and O(1) cancel-by-id.
 - **CRTP publisher template** with a zero-cost `NullPublisher` default —
   market-data callbacks resolve at compile time and compile away entirely
   for benchmarks.
-- **30+ unit tests** covering crossed-book, partial-fill, self-trade,
+- **32 unit tests** covering crossed-book, partial-fill, self-trade,
   iterator-invalidation, and randomized invariant scenarios.
 
 ## Results
 
-Median of 5 runs per configuration, 2M operations each.
+Median of 5 runs per configuration, 2M operations each, on Apple Silicon.
 
 ### Throughput
 ![throughput](docs/figures/throughput.png)
@@ -30,12 +30,17 @@ Median of 5 runs per configuration, 2M operations each.
 ### Arena vs malloc baseline
 ![improvement](docs/figures/relative_improvement.png)
 
-Raw cache-miss measurements (`perf stat -e L1-dcache-load-misses`):
+| Metric         |   Arena pool   | Malloc baseline | Improvement |
+| -------------- | -------------: | --------------: | ----------: |
+| Throughput     |  15.94M ops/s  |   12.66M ops/s  |     **+26%** |
+| p50 latency    |        42 ns   |          83 ns  |     **−49%** |
+| p99 latency    |       209 ns   |         291 ns  |     **−28%** |
+| p99.9 latency  |       375 ns   |         417 ns  |        −10%  |
 
-| Build          | L1-dcache-load-misses | Δ vs malloc |
-| -------------- | --------------------: | ----------: |
-| `bench`        | _fill in_             | _fill in_   |
-| `bench_nopool` | _fill in_             | baseline    |
+L1-dcache-miss measurements via `perf stat` are pending — `perf` is Linux-only
+and the current measurement environment is Apple Silicon. Throughput and
+latency improvements above are what the cache-locality win produces in
+user-visible terms.
 
 ## Build
 

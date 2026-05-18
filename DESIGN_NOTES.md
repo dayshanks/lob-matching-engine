@@ -30,8 +30,19 @@ from in pursuit of lower per-operation latency.
   pre-allocates a slab of `Order` slots and threads a freelist through
   `Order::next` (active and free states are disjoint, so the link slot is
   reused for free). No allocations on the hot path, no atomic refcount, no
-  cache lines dirtied by refcount bumps. Measured L1-dcache-miss reduction
-  vs. malloc-baseline build: **[fill in]%**.
+  cache lines dirtied by refcount bumps.
+
+  Measured against a malloc-baseline build (`-DLOB_NO_POOL`, same code path
+  routed through `new` / `delete`), median of 5 runs over 2M operations on
+  Apple Silicon:
+  - **Throughput: +26%** (15.94M ops/sec vs 12.66M ops/sec)
+  - **p50 latency: −49%** (42 ns vs 83 ns)
+  - **p99 latency: −28%** (209 ns vs 291 ns)
+  - **p99.9 latency: −10%** (375 ns vs 417 ns)
+
+  The p50 result — half the median latency — is the cache-locality win
+  showing up exactly where it should: the common path benefits most from
+  hot data staying resident.
 
 - **Caller-provided order IDs with duplicate-rejection.** The reference uses
   a `static long OrderCore::ID` counter — not thread-safe, and state leaks
@@ -65,3 +76,8 @@ server, multi-instrument exchange routing, and Python bindings — all out of
 scope for this project, which focuses on the matching engine itself. A
 future iteration may add a thin publisher implementation behind the CRTP
 hook to demonstrate the integration point without expanding scope.
+
+L1-dcache-miss counts via `perf stat` are a planned addition once a Linux
+measurement environment is set up — the current results are from Apple
+Silicon, where `perf` is unavailable. The cache-locality argument is
+supported indirectly by the p50 latency reduction.

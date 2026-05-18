@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cinttypes>
 #include <cstdio>
 #include <cstdint>
 #include <random>
@@ -99,7 +100,7 @@ int main(int argc, char** argv) {
     std::printf("elapsed:      %.3f s\n", elapsed_s);
     std::printf("throughput:   %.0f ops/sec  (%.2fM/s)\n", tput, tput / 1e6);
     std::printf("open orders:  %zu\n", book.open_orders());
-    std::printf("latency ns:   p50=%lu  p90=%lu  p99=%lu  p999=%lu  max=%lu\n",
+    std::printf("latency ns:   p50=%" PRIu64 "  p90=%" PRIu64 "  p99=%" PRIu64 "  p999=%" PRIu64 "  max=%" PRIu64 "\n",
                 pct(0.50), pct(0.90), pct(0.99), pct(0.999), latencies.back());
     std::printf("latency us:   p50=%.2f  p90=%.2f  p99=%.2f\n",
                 pct(0.50) / 1000.0, pct(0.90) / 1000.0, pct(0.99) / 1000.0);
